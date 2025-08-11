@@ -29,73 +29,89 @@ urls = data.get("urls", [])
 
 # 추출한 데이터 엑셀 저장 변수
 results = []
+idx = 1
 
 # 반복문 실행
 for url in urls:
-  print(url)
+  print(f"{idx} : !! URL 접속 !! : {url} ")
   
-  # 사이트 진입
-  driver.get(url)
+  try:  
+    # 사이트 진입
+    driver.get(url)
 
-  time.sleep(0.5)
+    time.sleep(0.5)
 
-  # iframe 전환
-  iframe = driver.find_element(By.CSS_SELECTOR, 'iframe[title="iframe"]')
-  driver.switch_to.frame(iframe)
+    # iframe 전환
+    iframe = driver.find_element(By.CSS_SELECTOR, 'iframe[title="iframe"]')
+    driver.switch_to.frame(iframe)
 
-  # 예매안내 팝업 닫기
-  try:
-    driver.find_element(By.XPATH, '/html/body/div[2]/div[4]/div/div[3]/button').click()
+    # 예매안내 팝업 닫기
+    try:
+      driver.find_element(By.XPATH, '/html/body/div[2]/div[4]/div/div[3]/button').click()
+    except:
+      time.sleep(0.1)
+
+    time.sleep(0.3)
+
+    # productsContents 내부 img 태그 전부 찾기
+    imgs = driver.find_elements(By.CSS_SELECTOR, ".productsContents img")
+    # src 속성만 추출
+    image_urls = [img.get_attribute("src") for img in imgs]
+    # 아이콘 이미지 삭제
+    remove_keyword = "icon_character_20.png"
+    filtered_urls = [url for url in image_urls if remove_keyword not in url]
+
+    # 판매정보 탭 클릭
+    driver.find_element(By.CLASS_NAME, "productsTabAdditional").click()
+    time.sleep(0.3)
+
+    # 상품관련정보
+    try:
+      companyInfo = driver.find_element(By.CLASS_NAME, "companyInfo").text
+    except:
+      companyInfo = '-'
+
+    # 판매자정보 클릭
+    driver.find_element(By.XPATH, '/html/body/div[2]/div[1]/div/div[4]/div[2]/div/div[1]').click()
+    # 상호
+    corporationName = driver.find_element(By.ID, "corporationName").text
+    # 대표자명
+    bossName = driver.find_element(By.ID, "bossName").text
+    # 사업자등록번호
+    registrationNumber = driver.find_element(By.ID, "registrationNumber").text
+    # E-mail
+    email = driver.find_element(By.ID, "email").text
+    # 연락처
+    companyPhone = driver.find_element(By.ID, "companyPhone").text
+    # 주소
+    address = driver.find_element(By.ID, "address").text
+    
+    # 엑셀
+    results.append({
+      "상품관련정보": companyInfo,
+      "상호명": corporationName,
+      "대표자명": bossName,
+      "사업자주소": address,
+      "전자우편주소": email,
+      "연락처": companyPhone,
+      "사업자등록번호": registrationNumber,
+      "통신판매업신고": '-',
+      "랜딩페이지": filtered_urls
+    })
   except:
-    time.sleep(0.1)
+    results.append({
+      "상품관련정보": '에러 재확인 필요',
+      "상호명": '에러 재확인 필요',
+      "대표자명": '에러 재확인 필요',
+      "사업자주소": '에러 재확인 필요',
+      "전자우편주소": '에러 재확인 필요',
+      "연락처": '에러 재확인 필요',
+      "사업자등록번호": '에러 재확인 필요',
+      "통신판매업신고": '-',
+      "랜딩페이지": '에러 재확인 필요'
+    })
 
-  time.sleep(0.3)
-
-  # productsContents 내부 img 태그 전부 찾기
-  imgs = driver.find_elements(By.CSS_SELECTOR, ".productsContents img")
-  # src 속성만 추출
-  image_urls = [img.get_attribute("src") for img in imgs]
-  # 아이콘 이미지 삭제
-  remove_keyword = "icon_character_20.png"
-  filtered_urls = [url for url in image_urls if remove_keyword not in url]
-
-  # 판매정보 탭 클릭
-  driver.find_element(By.CLASS_NAME, "productsTabAdditional").click()
-  time.sleep(0.3)
-
-  # 상품관련정보
-  try:
-    companyInfo = driver.find_element(By.CLASS_NAME, "companyInfo").text
-  except:
-    companyInfo = '-'
-
-  # 판매자정보 클릭
-  driver.find_element(By.XPATH, '/html/body/div[2]/div[1]/div/div[4]/div[2]/div/div[1]').click()
-  # 상호
-  corporationName = driver.find_element(By.ID, "corporationName").text
-  # 대표자명
-  bossName = driver.find_element(By.ID, "bossName").text
-  # 사업자등록번호
-  registrationNumber = driver.find_element(By.ID, "registrationNumber").text
-  # E-mail
-  email = driver.find_element(By.ID, "email").text
-  # 연락처
-  companyPhone = driver.find_element(By.ID, "companyPhone").text
-  # 주소
-  address = driver.find_element(By.ID, "address").text
-  
-  # 엑셀
-  results.append({
-    "상품관련정보": companyInfo,
-    "상호명": corporationName,
-    "대표자명": bossName,
-    "사업자주소": address,
-    "전자우편주소": email,
-    "연락처": companyPhone,
-    "사업자등록번호": registrationNumber,
-    "통신판매업신고": '-',
-    "랜딩페이지": filtered_urls
-  })
+  idx += 1
   
 # 엑셀 파일로 저장
 df = pd.DataFrame(results)
