@@ -21,7 +21,7 @@ options.add_experimental_option("debuggerAddress", "127.0.0.1:9222")
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
 # 사이트 진입
-driver.get("https://leisure-web.yanolja.com/leisure/10231622")
+driver.get("https://leisure-web.yanolja.com/leisure/10226852")
 
 time.sleep(0.5)
 
@@ -57,21 +57,24 @@ if "더보기" in companyInfo:
 driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
 # 가격
-price_list = []
-div_productSection = driver.find_elements(By.XPATH, '//div[@data-id="productSection"]/div[3]/div[1]/div')
-div_price = div_productSection[1].find_elements(By.XPATH, './div')
+try:
+  price_list = []
+  div_productSection = driver.find_elements(By.XPATH, '//div[@data-id="productSection"]/div[3]/div[1]/div')
+  div_price = div_productSection[1].find_elements(By.XPATH, './div')
 
-for section in div_price:
-  try:
-    # unit price 영역의 <p> 태그 가져오기
-    price_text = section.find_element(By.CSS_SELECTOR, '[aria-label="unit price"] p').text.strip()
-        
-    # "원" 제거, 쉼표 제거
-    price = price_text.replace("원", "").replace(",", "").strip()
-        
-    price_list.append(price)
-  except Exception as e:
-    print("가격 추출 실패:", e)
+  for section in div_price:
+    try:
+      # unit price 영역의 <p> 태그 가져오기
+      price_text = section.find_element(By.CSS_SELECTOR, '[aria-label="unit price"] p').text.strip()
+          
+      # "원" 제거, 쉼표 제거
+      price = price_text.replace("원", "").replace(",", "").strip()
+          
+      price_list.append(price)
+    except Exception as e:
+      print("가격 추출 실패:", e)
+except:
+  price_list = []
 
 # 판매자정보 클릭
 driver.find_element(By.XPATH, '(//div[@class="py-20"])[last()]//button').click()

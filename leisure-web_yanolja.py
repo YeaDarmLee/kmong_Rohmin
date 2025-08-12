@@ -21,7 +21,7 @@ options.add_experimental_option("debuggerAddress", "127.0.0.1:9222")
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
 # JSON 문자열을 파일로 저장했다고 가정
-with open('leisure-web_yanolja.json', 'r', encoding='utf-8') as f:
+with open('leisure-web_yanolja_error.json', 'r', encoding='utf-8') as f:
   data = json.load(f)
 
 # urls 값 가져오기
@@ -70,21 +70,36 @@ for url in urls:
         print("더보기 버튼 클릭 실패:", e)
     
     # 가격
-    price_list = []
-    div_productSection = driver.find_elements(By.XPATH, '//div[@data-id="productSection"]/div[3]/div[1]/div')
-    div_price = div_productSection[1].find_elements(By.XPATH, './div')
+    try:
+      price_list = []
+      div_productSection = driver.find_elements(By.XPATH, '//div[@data-id="productSection"]/div[3]/div[1]/div')
+      div_price = div_productSection[1].find_elements(By.XPATH, './div')
 
-    for section in div_price:
-      try:
-        # unit price 영역의 <p> 태그 가져오기
-        price_text = section.find_element(By.CSS_SELECTOR, '[aria-label="unit price"] p').text.strip()
-            
-        # "원" 제거, 쉼표 제거
-        price = price_text.replace("원", "").replace(",", "").strip()
-            
-        price_list.append(price)
-      except Exception as e:
-        print("가격 추출 실패:", e)
+      for section in div_price:
+        try:
+          # unit price 영역의 <p> 태그 가져오기
+          price_text = section.find_element(By.CSS_SELECTOR, '[aria-label="unit price"] p').text.strip()
+              
+          # "원" 제거, 쉼표 제거
+          price = price_text.replace("원", "").replace(",", "").strip()
+              
+          price_list.append(price)
+        except Exception as e:
+          print("가격 추출 실패:", e)
+
+      for section in div_price:
+        try:
+          # unit price 영역의 <p> 태그 가져오기
+          price_text = section.find_element(By.CSS_SELECTOR, '[aria-label="unit price"] p').text.strip()
+              
+          # "원" 제거, 쉼표 제거
+          price = price_text.replace("원", "").replace(",", "").strip()
+              
+          price_list.append(price)
+        except Exception as e:
+          print("가격 추출 실패:", e)
+    except:
+      price_list = []
 
     # 스크롤 아래로 내리기
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
@@ -159,4 +174,4 @@ def remove_illegal_chars(v):
 df = df.applymap(remove_illegal_chars)
 
 # 4) 엑셀로 저장 (openpyxl)
-df.to_excel("leisure-web_yanolja_result.xlsx", index=False, engine='openpyxl')
+df.to_excel("leisure-web_yanolja_error_result.xlsx", index=False, engine='openpyxl')

@@ -83,61 +83,20 @@ for url in urls:
     # 세 개 리스트 합치기
     all_image_urls = image_urls + image_urls1 + image_urls2
 
-    # 판매정보 탭 클릭
-    driver.find_element(By.CLASS_NAME, "productsTabAdditional").click()
-    time.sleep(0.3)
-
-    # 상품관련정보
-    try:
-      companyInfo = driver.find_element(By.CLASS_NAME, "companyInfo").text
-    except:
-      companyInfo = '-'
-
-    # 판매자정보 클릭
-    driver.find_element(By.XPATH, '/html/body/div[2]/div[1]/div/div[4]/div[2]/div/div[1]').click()
-    try:
-      # 상호
-      corporationName = driver.find_element(By.ID, "corporationName").text
-      # 대표자명
-      bossName = driver.find_element(By.ID, "bossName").text
-      # 사업자등록번호
-      registrationNumber = driver.find_element(By.ID, "registrationNumber").text
-      # E-mail
-      email = driver.find_element(By.ID, "email").text
-      # 연락처
-      companyPhone = driver.find_element(By.ID, "companyPhone").text
-      # 주소
-      address = driver.find_element(By.ID, "address").text
-      
       # 엑셀
-      results.append({
+    results.append({
         "타이틀": title,
         "page": url,
-        "상품관련정보": companyInfo,
-        "상호명": corporationName,
-        "대표자명": bossName,
-        "사업자주소": address,
-        "전자우편주소": email,
-        "연락처": companyPhone,
-        "사업자등록번호": registrationNumber,
+        "상품관련정보": '-',
+        "상호명": '정보 없음',
+        "대표자명": '정보 없음',
+        "사업자주소": '정보 없음',
+        "전자우편주소": '정보 없음',
+        "연락처": '정보 없음',
+        "사업자등록번호": '정보 없음',
         "통신판매업신고": '-',
         "랜딩페이지": all_image_urls
-      })
-    except:
-      # 개인 판매자
-      results.append({
-        "타이틀": title,
-        "page": url,
-        "상품관련정보": companyInfo,
-        "상호명": "개인 판매자",
-        "대표자명": "개인 판매자",
-        "사업자주소": "개인 판매자",
-        "전자우편주소": "개인 판매자",
-        "연락처": "개인 판매자",
-        "사업자등록번호": "개인 판매자",
-        "통신판매업신고": '-',
-        "랜딩페이지": all_image_urls
-      })
+    })
   except:
     results.append({
       "타이틀": '',

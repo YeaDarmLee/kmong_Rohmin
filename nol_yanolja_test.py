@@ -22,9 +22,9 @@ driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), opti
 
 
 # 사이트 진입
-driver.get('https://nol.yanolja.com/entertainment/40722')
+driver.get('https://leisure-web.yanolja.com/leisure/10226852')
 
-time.sleep(0.3)
+time.sleep(0.5)
 
 # iframe 전환
 iframe = driver.find_element(By.CSS_SELECTOR, 'iframe[title="iframe"]')
@@ -36,7 +36,7 @@ try:
 except:
   time.sleep(0.1)
 
-time.sleep(0.4)
+time.sleep(0.5)
 
 # 타이틀
 title = driver.find_element(By.XPATH, "/html/body/div[2]/div[1]/div/div[2]/div/h2").text
@@ -82,27 +82,42 @@ except:
 driver.find_element(By.XPATH, '/html/body/div[2]/div[1]/div/div[4]/div[2]/div/div[1]').click()
 # 상호
 corporationName = driver.find_element(By.ID, "corporationName").text
-# 대표자명
-bossName = driver.find_element(By.ID, "bossName").text
-# 사업자등록번호
-registrationNumber = driver.find_element(By.ID, "registrationNumber").text
-# E-mail
-email = driver.find_element(By.ID, "email").text
-# 연락처
-companyPhone = driver.find_element(By.ID, "companyPhone").text
-# 주소
-address = driver.find_element(By.ID, "address").text
+try:
+  # 대표자명
+  bossName = driver.find_element(By.ID, "bossName").text
+  # 사업자등록번호
+  registrationNumber = driver.find_element(By.ID, "registrationNumber").text
+  # E-mail
+  email = driver.find_element(By.ID, "email").text
+  # 연락처
+  companyPhone = driver.find_element(By.ID, "companyPhone").text
+  # 주소
+  address = driver.find_element(By.ID, "address").text
 
-# 엑셀
-print({
-  "타이틀": title,
-  "상품관련정보": companyInfo,
-  "상호명": corporationName,
-  "대표자명": bossName,
-  "사업자주소": address,
-  "전자우편주소": email,
-  "연락처": companyPhone,
-  "사업자등록번호": registrationNumber,
-  "통신판매업신고": '-',
-  "랜딩페이지": all_image_urls
-})
+  # 엑셀
+  print({
+    "타이틀": title,
+    "상품관련정보": companyInfo,
+    "상호명": corporationName,
+    "대표자명": bossName,
+    "사업자주소": address,
+    "전자우편주소": email,
+    "연락처": companyPhone,
+    "사업자등록번호": registrationNumber,
+    "통신판매업신고": '-',
+    "랜딩페이지": all_image_urls
+  })
+except:
+  # 개인 판매자
+  print({
+    "타이틀": title,
+    "상품관련정보": companyInfo,
+    "상호명": "개인 판매자",
+    "대표자명": "개인 판매자",
+    "사업자주소": "개인 판매자",
+    "전자우편주소": "개인 판매자",
+    "연락처": "개인 판매자",
+    "사업자등록번호": "개인 판매자",
+    "통신판매업신고": '-',
+    "랜딩페이지": all_image_urls
+  })
