@@ -39,7 +39,10 @@ for url in urls:
     # 사이트 진입
     driver.get(url)
 
-    time.sleep(0.3)
+    time.sleep(0.5)
+    
+    # 타이틀
+    title = driver.find_element(By.XPATH, "/html/body/div[1]/div[1]/div/div[2]/div[2]/div/div[1]/p").text
 
     # aria-label="program-information" 내부 모든 img 태그 찾기
     imgs = driver.find_elements(By.CSS_SELECTOR, 'div[aria-label="program-information"] img')
@@ -52,22 +55,42 @@ for url in urls:
 
     # "더보기"가 있는 경우 버튼 클릭
     if "더보기" in companyInfo:
-        try:
-            # div 내부 버튼 클릭
-            more_button = company_div.find_element(By.TAG_NAME, 'button')
-            more_button.click()
+      try:
+        # div 내부 버튼 클릭
+        more_button = company_div.find_element(By.TAG_NAME, 'button')
+        more_button.click()
 
-            # 업데이트된 텍스트 다시 가져오기
-            companyInfo = driver.find_element(By.CSS_SELECTOR, 'div.py-20').text
+        # 업데이트된 텍스트 다시 가져오기
+        companyInfo = driver.find_element(By.CSS_SELECTOR, 'div.py-20').text
             
-            # '접기'가 있으면 제거
-            if companyInfo.endswith("접기"):
-                companyInfo = companyInfo.rstrip("접기").strip()
-        except Exception as e:
-            print("더보기 버튼 클릭 실패:", e)
+        # '접기'가 있으면 제거
+        if companyInfo.endswith("접기"):
+          companyInfo = companyInfo.rstrip("접기").strip()
+      except Exception as e:
+        print("더보기 버튼 클릭 실패:", e)
+    
+    # 가격
+    price_list = []
+    div_productSection = driver.find_elements(By.XPATH, '//div[@data-id="productSection"]/div[3]/div[1]/div')
+    div_price = div_productSection[1].find_elements(By.XPATH, './div')
+
+    for section in div_price:
+      try:
+        # unit price 영역의 <p> 태그 가져오기
+        price_text = section.find_element(By.CSS_SELECTOR, '[aria-label="unit price"] p').text.strip()
+            
+        # "원" 제거, 쉼표 제거
+        price = price_text.replace("원", "").replace(",", "").strip()
+            
+        price_list.append(price)
+      except Exception as e:
+        print("가격 추출 실패:", e)
 
     # 스크롤 아래로 내리기
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    
+    # 가격
+    price_elements = driver.find_elements(By.XPATH, '//div[@data-id="productSection"]/div[3]//div[@class="self-stretch"]/div')
     
     # 판매자정보 클릭
     driver.find_element(By.XPATH, '(//div[@class="py-20"])[last()]//button').click()
@@ -90,6 +113,8 @@ for url in urls:
     
     # 엑셀
     results.append({
+      "타이틀": title,
+      "page": url,
       "상품관련정보": companyInfo,
       "상호명": corporationName,
       "대표자명": bossName,
@@ -98,19 +123,22 @@ for url in urls:
       "연락처": companyPhone,
       "사업자등록번호": registrationNumber,
       "통신판매업신고": orderBusiness,
-      "랜딩페이지": image_urls
+      "랜딩페이지": image_urls,
+      "가격" : price_list
     })
   except:
     results.append({
+      "타이틀": '',
+      "page": url,
       "상품관련정보": '에러 재확인 필요',
-      "상호명": '에러 재확인 필요',
-      "대표자명": '에러 재확인 필요',
-      "사업자주소": '에러 재확인 필요',
-      "전자우편주소": '에러 재확인 필요',
-      "연락처": '에러 재확인 필요',
-      "사업자등록번호": '에러 재확인 필요',
-      "통신판매업신고": '에러 재확인 필요',
-      "랜딩페이지": '에러 재확인 필요'
+      "상호명": '-',
+      "대표자명": '-',
+      "사업자주소": '-',
+      "전자우편주소": '-',
+      "연락처": '-',
+      "사업자등록번호": '-',
+      "통신판매업신고": '-',
+      "랜딩페이지": '-'
     })
 
   idx += 1

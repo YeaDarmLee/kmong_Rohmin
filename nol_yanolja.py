@@ -21,7 +21,7 @@ options.add_experimental_option("debuggerAddress", "127.0.0.1:9222")
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
 # JSON 문자열을 파일로 저장했다고 가정
-with open('nol_yanolja_1000.json', 'r', encoding='utf-8') as f:
+with open('nol_yanolja_9000.json', 'r', encoding='utf-8') as f:
   data = json.load(f)
 
 # urls 값 가져오기
@@ -39,7 +39,7 @@ for url in urls:
     # 사이트 진입
     driver.get(url)
 
-    time.sleep(0.3)
+    time.sleep(0.5)
 
     # iframe # iframe 전환
     iframe = driver.find_element(By.CSS_SELECTOR, 'iframe[title="iframe"]')
@@ -51,21 +51,37 @@ for url in urls:
     except:
       time.sleep(0.1)
 
+    time.sleep(0.5)
+    
     # 타이틀
     title = driver.find_element(By.XPATH, "/html/body/div[2]/div[1]/div/div[2]/div/h2").text
 
     # 첫 번째 이미지 URL
-    productsPriceInformation = driver.find_element(By.CSS_SELECTOR, ".productsPriceInformation")
-    imgs = productsPriceInformation.find_elements(By.TAG_NAME, "img")
-    image_urls = [img.get_attribute("src") for img in imgs]
+    try:
+      productsNotice = driver.find_element(By.CSS_SELECTOR, ".productsNotice")
+      imgs = productsNotice.find_elements(By.TAG_NAME, "img")
+      image_urls = [img.get_attribute("src") for img in imgs]
+    except:
+      image_urls = []
 
     # 두 번째 이미지 URL
-    productsDetail = driver.find_element(By.CSS_SELECTOR, ".productsDetail")
-    imgs2 = productsDetail.find_elements(By.TAG_NAME, "img")
-    image_urls2 = [img.get_attribute("src") for img in imgs2]
+    try:
+      productsPriceInformation = driver.find_element(By.CSS_SELECTOR, ".productsPriceInformation")
+      imgs1 = productsPriceInformation.find_elements(By.TAG_NAME, "img")
+      image_urls1 = [img.get_attribute("src") for img in imgs1]
+    except:
+      image_urls1 = []
 
-    # 두 리스트 합치기
-    image_urls.extend(image_urls2)  # image_urls 뒤에 image_urls2 내용을 붙임
+    # 세 번째 이미지 URL
+    try:
+      productsDetail = driver.find_element(By.CSS_SELECTOR, ".productsDetail")
+      imgs2 = productsDetail.find_elements(By.TAG_NAME, "img")
+      image_urls2 = [img.get_attribute("src") for img in imgs2]
+    except:
+      image_urls2 = []
+
+    # 세 개 리스트 합치기
+    all_image_urls = image_urls + image_urls1 + image_urls2
 
     # 판매정보 탭 클릭
     driver.find_element(By.CLASS_NAME, "productsTabAdditional").click()
@@ -104,7 +120,7 @@ for url in urls:
       "연락처": companyPhone,
       "사업자등록번호": registrationNumber,
       "통신판매업신고": '-',
-      "랜딩페이지": image_urls
+      "랜딩페이지": all_image_urls
     })
   except:
     results.append({
@@ -139,4 +155,4 @@ def remove_illegal_chars(v):
 df = df.applymap(remove_illegal_chars)
 
 # 4) 엑셀로 저장 (openpyxl)
-df.to_excel("nol_yanolja_1000_result.xlsx", index=False, engine='openpyxl')
+df.to_excel("nol_yanolja_9000_result.xlsx", index=False, engine='openpyxl')
